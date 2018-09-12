@@ -8,7 +8,7 @@ public class WeatherMain {
 		WeatherAppView view = new WeatherAppView(model);
 		view.run();
 		
-		System.out.println(model.getMessageString());
+//		System.out.println(model.getMessageString());
 
 	}
 
