@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 
-public class WeatherAppView implements ActionListener{
+public class WeatherAppView extends Observable implements ActionListener {
 
 	private WeatherAppModel data;
 	private JFrame window;
@@ -24,11 +24,12 @@ public class WeatherAppView implements ActionListener{
 	private JButton resButton;
 	private String location;
 	private String timeOfDay;
+	private String message;
+	
 	private ArrayList<String> placesAndTimes = new ArrayList<String>();
 
-	public WeatherAppView(WeatherAppModel d){
+	public WeatherAppView(){
 		
-		this.data = d;
 		this.window = new JFrame("My WeatherApp");
 		this.background = new JPanel();
 		this.place = new JLabel("Location:");
@@ -38,27 +39,16 @@ public class WeatherAppView implements ActionListener{
 		this.temp = new JLabel("Temperature:");
 		this.tempRes = new JLabel("Press 'OK!' for result");
 		this.resButton = new JButton("OK!");
-		
-//		placeBox.addActionListener(new ActionListener(){
-//			
-//		public void actionPerformed(ActionEvent arg0) {
-//			location = (String) placeBox.getSelectedItem();
-//		}});
-//		
-//		timeBox.addActionListener(new ActionListener(){
-//			
-//			public void actionPerformed(ActionEvent arg0) {
-//				timeOfDay = (String)timeBox.getSelectedItem();
-//			}});
-//		
+			
 		resButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent arg0) {
 				if(placesAndTimes.contains((String) placeBox.getSelectedItem()) && placesAndTimes.contains((String)timeBox.getSelectedItem())){
 					location = (String) placeBox.getSelectedItem();
 					timeOfDay = (String)timeBox.getSelectedItem();
-					data.setLocationAndTime(location, timeOfDay);
-					tempRes.setText(data.getMessageString());
+					setChanged();
+					notifyObservers();
+					tempRes.setText(message);
 				}
 				else{
 					tempRes.setText("Invalid input, choose location and time from lists.");
@@ -123,48 +113,75 @@ public class WeatherAppView implements ActionListener{
 		background.add(resButton);
 		
     }
+    
+    public String getLocation(){
+    	return location;
+    }
+    
+    public String getTime(){
+    	return timeOfDay;
+    }
+    
+    public void setMessage(String mes){
+    	message = mes;
+    }
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub	
 	}
 
-	//	public void setResult(){
-	//	resButton.addActionListener(new ActionListener(){
-	//
-	//		public void actionPerformed(ActionEvent arg0) {
-	//			tempRes.setText(data.getMessageString());
-	//
-	//		}});
-	//	}
-
-	//	public void getLocation(){
-//			placeBox.addActionListener(new ActionListener(){
-//	
-//			public void actionPerformed(ActionEvent arg0) {
-//				location = (String) placeBox.getSelectedItem();
-//			}});
-	//}
-	//
-	//public void getTime(){
-//		timeBox.addActionListener(new ActionListener(){
-//	
-//			public void actionPerformed(ActionEvent arg0) {
-//				timeOfDay = (String)timeBox.getSelectedItem();
-//			}});
-	//}
-
-	//public void userInput(){
-	////	input = new String[2];
-	//	resButton.addActionListener(new ActionListener(){
-	//
-	//		public void actionPerformed(ActionEvent arg0) {
-	//			data.setLocationAndTime(location, timeOfDay);
-	//		}});
-	//}
-
-	//public String[] getUserInput(){
-	//	return input;
-	//}
-
 }
+
+//GAMMAL KOD
+//________________________________________________
+//placeBox.addActionListener(new ActionListener(){
+//
+//public void actionPerformed(ActionEvent arg0) {
+//location = (String) placeBox.getSelectedItem();
+//}});
+//
+//timeBox.addActionListener(new ActionListener(){
+//
+//public void actionPerformed(ActionEvent arg0) {
+//	timeOfDay = (String)timeBox.getSelectedItem();
+//}});
+//
+
+//	public void setResult(){
+//	resButton.addActionListener(new ActionListener(){
+//
+//		public void actionPerformed(ActionEvent arg0) {
+//			tempRes.setText(data.getMessageString());
+//
+//		}});
+//	}
+
+//	public void getLocation(){
+//		placeBox.addActionListener(new ActionListener(){
+//
+//		public void actionPerformed(ActionEvent arg0) {
+//			location = (String) placeBox.getSelectedItem();
+//		}});
+//}
+//
+//public void getTime(){
+//	timeBox.addActionListener(new ActionListener(){
+//
+//		public void actionPerformed(ActionEvent arg0) {
+//			timeOfDay = (String)timeBox.getSelectedItem();
+//		}});
+//}
+
+//public void userInput(){
+////	input = new String[2];
+//	resButton.addActionListener(new ActionListener(){
+//
+//		public void actionPerformed(ActionEvent arg0) {
+//			data.setLocationAndTime(location, timeOfDay);
+//		}});
+//}
+
+//public String[] getUserInput(){
+//	return input;
+//}

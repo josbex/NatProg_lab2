@@ -4,11 +4,12 @@ public class WeatherMain {
 	
 	
 	public static void main(String[] args) {
-		WeatherAppModel model = new WeatherAppModel();
-		WeatherAppView view = new WeatherAppView(model);
+		WeatherAppView view = new WeatherAppView();
+		WeatherAppModel model = new WeatherAppModel(view);
+		new WeatherAppController(model, view);
 		view.run();
-		
-//		System.out.println(model.getMessageString());
+
+
 
 	}
 
