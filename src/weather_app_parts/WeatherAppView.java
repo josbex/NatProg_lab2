@@ -24,7 +24,7 @@ public class WeatherAppView extends Observable implements ActionListener {
 	private JButton resButton;
 	private String location;
 	private String timeOfDay;
-	private String message;
+	private String message, temperature;
 	
 	private ArrayList<String> placesAndTimes = new ArrayList<String>();
 
@@ -48,7 +48,7 @@ public class WeatherAppView extends Observable implements ActionListener {
 					timeOfDay = (String)timeBox.getSelectedItem();
 					setChanged();
 					notifyObservers();
-					tempRes.setText(message);
+					tempRes.setText("The temperature in " + getLocation() + " at " + getTime() + " o'clock is: " + getTemp() +" celsius.");
 				}
 				else{
 					tempRes.setText("Invalid input, choose location and time from lists.");
@@ -71,7 +71,7 @@ public class WeatherAppView extends Observable implements ActionListener {
 		placesAndTimes.add("Kage");
 		
 		timeBox.setEditable(true);
-		for(int i = 1; i <= 24; i++){
+		for(int i = 0; i < 24; i++){
 			timeBox.addItem(Integer.toString(i));
 			placesAndTimes.add(Integer.toString(i));
 		}
@@ -125,6 +125,13 @@ public class WeatherAppView extends Observable implements ActionListener {
     public void setMessage(String mes){
     	message = mes;
     }
+    public void setTemp(String temp){
+    	temperature = temp;
+    }
+    
+	public String getTemp(){
+		return temperature;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
