@@ -206,4 +206,3 @@ public class WeatherAppModel implements Observer{
 		view.setTemp(temperature);
 	}
 }
-
