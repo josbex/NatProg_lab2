@@ -2,34 +2,43 @@ package weather_app_parts;
 
 import java.util.ArrayList;
 import java.util.Observable;
-import java.util.Observer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.*;
 import javax.swing.*;
 
-
+/**
+ * This class is in charge of presenting the GUI of the program 
+ * and also reacting to the interactions of the user in the program.
+ * @author Josefine Bexelius
+ *
+ */
 public class WeatherAppView extends Observable implements ActionListener {
 
-	private WeatherAppModel data;
 	private JFrame window;
 	private JPanel background;
 	private JLabel place;
 	private JLabel time;
 	private JLabel temp;
-	private JLabel tempRes;
+	private JLabel tempRes, refMessage;
 	private JComboBox<String> placeBox;
 	private JComboBox<String> timeBox;
-	private JButton resButton;
+	private JButton resButton, refreshButton;
 	private String location;
 	private String timeOfDay;
-	private String message, temperature;
-	
+	private String temperature, celsius;
+	private int currentHour;
+	private boolean refreshData = true;
 	private ArrayList<String> placesAndTimes = new ArrayList<String>();
 
+	/**
+	 * Constructor of the view, creates the GUI components and
+	 * adds listeners to the programs buttons.
+	 */
 	public WeatherAppView(){
 		
+		this.celsius =  "\u2103";
 		this.window = new JFrame("My WeatherApp");
 		this.background = new JPanel();
 		this.place = new JLabel("Location:");
@@ -39,30 +48,49 @@ public class WeatherAppView extends Observable implements ActionListener {
 		this.temp = new JLabel("Temperature:");
 		this.tempRes = new JLabel("Press 'OK!' for result");
 		this.resButton = new JButton("OK!");
+		this.refreshButton = new JButton("Refresh data");
+		this.refMessage = new JLabel("Press 'Refresh data' and then 'OK' for latest data");
 			
 		resButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent arg0) {
+				//Checks so that the users input is valid
 				if(placesAndTimes.contains((String) placeBox.getSelectedItem()) && placesAndTimes.contains((String)timeBox.getSelectedItem())){
 					location = (String) placeBox.getSelectedItem();
 					timeOfDay = (String)timeBox.getSelectedItem();
 					setChanged();
 					notifyObservers();
-					tempRes.setText("The temperature in " + getLocation() + " at " + getTime() + " o'clock is: " + getTemp() +" celsius.");
+					//Checks so that the requested time is earlier than what's available from the data.
+					if(currentHour <= Integer.valueOf(timeOfDay)){
+						tempRes.setText("The temperature in " + getLocation() + " at " + getTime() + " o'clock today is: " + getTemp() + celsius);
+					}
+					else{
+						tempRes.setText("Data not available for that time, choose a later time.");
+					}
 				}
 				else{
-					tempRes.setText("Invalid input, choose location and time from lists.");
+					tempRes.setText("Invalid input, choose a location and time from the lists.");
 				}
+			}});
+		
+		//sets variable to true when button is clicked, making it so that new data is used.
+		refreshButton.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent arg0) {
+				refreshData = true;
 			}});
 	}
 	
-	
+	/**
+	 * This method runs the GUI.
+	 */
     public void run() {
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setSize(400, 300); 
+        window.setSize(400, 350); 
         background.setBackground(Color.LIGHT_GRAY);
         
-		placeBox.setEditable(true);
+		//Adding contents to the JBoxes and also to the checklist.
+        placeBox.setEditable(true);
 		placeBox.addItem("Skelleftea");
 		placeBox.addItem("Kage");
 		placeBox.addItem("Stockholm");
@@ -82,6 +110,9 @@ public class WeatherAppView extends Observable implements ActionListener {
 		
     }
     
+    /**
+     * This method sets up the layout of the GUI:s components.
+     */
     public void appLayout(){
     	BoxLayout b1 = new BoxLayout(background, BoxLayout.PAGE_AXIS);
     	background.setLayout(b1);
@@ -112,24 +143,71 @@ public class WeatherAppView extends Observable implements ActionListener {
 		resButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		background.add(resButton);
 		
+		BoxLayout b4 = new BoxLayout(background, BoxLayout.PAGE_AXIS);
+		background.setLayout(b4);
+		background.add(Box.createRigidArea(new Dimension(400,20)));
+		refreshButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		background.add(refreshButton);
+		background.add(Box.createRigidArea(new Dimension(400,5)));
+		refMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+		background.add(refMessage);
+		
     }
     
+    /**
+     * Sets the current time (only hour) when the program runs.
+     * @param currHour the current hour 
+     */
+    public void setCurrentTime(int currHour){
+    	currentHour = currHour;
+    }
+    
+    /**
+     * Gets the location that is chosen in the GUI.
+     * @return location The chosen location.
+     */
     public String getLocation(){
     	return location;
     }
     
+    /**
+     * Gets the time that is chosen in the GUI.
+     * @return timeOfDay The chosen time.
+     */
     public String getTime(){
     	return timeOfDay;
     }
     
-    public void setMessage(String mes){
-    	message = mes;
+    /**
+     * Sets the refreshData to true or false, 
+     * which decides if cache or new data should be used.
+     * @param notCaching
+     */
+    public void setRefreshData(boolean notCaching){
+    	refreshData = notCaching;
     }
+    
+    /**
+     * Gets the value of the refreshData variable.
+     * @return refreshData
+     */
+    public boolean getRefreshData(){
+    	return refreshData;
+    }
+  
+    /**
+     * Sets  the temperature that gets displayed in the GUI.
+     * @param temp
+     */
     public void setTemp(String temp){
     	temperature = temp;
     }
     
-	public String getTemp(){
+	/**
+	 * Gets the chosen temperature.
+	 * @return temperature
+	 */
+    public String getTemp(){
 		return temperature;
 	}
 
@@ -140,55 +218,3 @@ public class WeatherAppView extends Observable implements ActionListener {
 
 }
 
-//GAMMAL KOD
-//________________________________________________
-//placeBox.addActionListener(new ActionListener(){
-//
-//public void actionPerformed(ActionEvent arg0) {
-//location = (String) placeBox.getSelectedItem();
-//}});
-//
-//timeBox.addActionListener(new ActionListener(){
-//
-//public void actionPerformed(ActionEvent arg0) {
-//	timeOfDay = (String)timeBox.getSelectedItem();
-//}});
-//
-
-//	public void setResult(){
-//	resButton.addActionListener(new ActionListener(){
-//
-//		public void actionPerformed(ActionEvent arg0) {
-//			tempRes.setText(data.getMessageString());
-//
-//		}});
-//	}
-
-//	public void getLocation(){
-//		placeBox.addActionListener(new ActionListener(){
-//
-//		public void actionPerformed(ActionEvent arg0) {
-//			location = (String) placeBox.getSelectedItem();
-//		}});
-//}
-//
-//public void getTime(){
-//	timeBox.addActionListener(new ActionListener(){
-//
-//		public void actionPerformed(ActionEvent arg0) {
-//			timeOfDay = (String)timeBox.getSelectedItem();
-//		}});
-//}
-
-//public void userInput(){
-////	input = new String[2];
-//	resButton.addActionListener(new ActionListener(){
-//
-//		public void actionPerformed(ActionEvent arg0) {
-//			data.setLocationAndTime(location, timeOfDay);
-//		}});
-//}
-
-//public String[] getUserInput(){
-//	return input;
-//}
