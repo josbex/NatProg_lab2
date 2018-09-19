@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 /**
@@ -18,19 +19,21 @@ public class WeatherAppView extends Observable implements ActionListener {
 
 	private JFrame window;
 	private JPanel background;
+	private JTextField refreshTime;
 	private JLabel place;
 	private JLabel time;
 	private JLabel temp;
 	private JLabel tempRes, refMessage;
 	private JComboBox<String> placeBox;
 	private JComboBox<String> timeBox;
-	private JButton resButton, refreshButton;
+	private JButton resButton;
 	private String location;
 	private String timeOfDay;
 	private String temperature, celsius;
-	private int currentHour;
-	private boolean refreshData = true;
+	private int currentHour, ttl;
 	private ArrayList<String> placesAndTimes = new ArrayList<String>();
+	private ArrayList<Long> requestTimes = new ArrayList<Long>();
+	private int indexCounter;
 
 	/**
 	 * Constructor of the view, creates the GUI components and
@@ -38,6 +41,8 @@ public class WeatherAppView extends Observable implements ActionListener {
 	 */
 	public WeatherAppView(){
 		
+		long startTime = System.currentTimeMillis()/1000;
+		requestTimes.add(startTime);
 		this.celsius =  "\u2103";
 		this.window = new JFrame("My WeatherApp");
 		this.background = new JPanel();
@@ -48,8 +53,8 @@ public class WeatherAppView extends Observable implements ActionListener {
 		this.temp = new JLabel("Temperature:");
 		this.tempRes = new JLabel("Press 'OK!' for result");
 		this.resButton = new JButton("OK!");
-		this.refreshButton = new JButton("Refresh data");
-		this.refMessage = new JLabel("Press 'Refresh data' and then 'OK' for latest data");
+		this.refreshTime = new JTextField();
+		this.refMessage = new JLabel("Set refresh rate (in seconds)");
 			
 		resButton.addActionListener(new ActionListener(){
 
@@ -58,6 +63,10 @@ public class WeatherAppView extends Observable implements ActionListener {
 				if(placesAndTimes.contains((String) placeBox.getSelectedItem()) && placesAndTimes.contains((String)timeBox.getSelectedItem())){
 					location = (String) placeBox.getSelectedItem();
 					timeOfDay = (String)timeBox.getSelectedItem();
+					long currTime = System.currentTimeMillis()/1000;
+					requestTimes.add(currTime);
+					indexCounter++;
+					ttl = Integer.valueOf(refreshTime.getText()) +60;
 					setChanged();
 					notifyObservers();
 					//Checks so that the requested time is earlier than what's available from the data.
@@ -73,12 +82,6 @@ public class WeatherAppView extends Observable implements ActionListener {
 				}
 			}});
 		
-		//sets variable to true when button is clicked, making it so that new data is used.
-		refreshButton.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent arg0) {
-				refreshData = true;
-			}});
 	}
 	
 	/**
@@ -132,6 +135,15 @@ public class WeatherAppView extends Observable implements ActionListener {
 		background.add(timeBox);
 		background.add(Box.createRigidArea(new Dimension(400,20)));
 		
+		BoxLayout b4 = new BoxLayout(background, BoxLayout.PAGE_AXIS);
+		background.setLayout(b4);
+		refMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+		background.add(refMessage);
+		background.add(Box.createRigidArea(new Dimension(400,5)));
+		refreshTime.setAlignmentX(Component.CENTER_ALIGNMENT);
+		refreshTime.setMaximumSize(new Dimension(100, 20));
+		background.add(refreshTime);		
+		
 		BoxLayout b3 = new BoxLayout(background, BoxLayout.PAGE_AXIS);
 		background.setLayout(b3);
 		temp.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -142,15 +154,9 @@ public class WeatherAppView extends Observable implements ActionListener {
 		background.add(Box.createRigidArea(new Dimension(400,20)));
 		resButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		background.add(resButton);
-		
-		BoxLayout b4 = new BoxLayout(background, BoxLayout.PAGE_AXIS);
-		background.setLayout(b4);
-		background.add(Box.createRigidArea(new Dimension(400,20)));
-		refreshButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		background.add(refreshButton);
 		background.add(Box.createRigidArea(new Dimension(400,5)));
-		refMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-		background.add(refMessage);
+		
+
 		
     }
     
@@ -178,22 +184,6 @@ public class WeatherAppView extends Observable implements ActionListener {
     	return timeOfDay;
     }
     
-    /**
-     * Sets the refreshData to true or false, 
-     * which decides if cache or new data should be used.
-     * @param notCaching
-     */
-    public void setRefreshData(boolean notCaching){
-    	refreshData = notCaching;
-    }
-    
-    /**
-     * Gets the value of the refreshData variable.
-     * @return refreshData
-     */
-    public boolean getRefreshData(){
-    	return refreshData;
-    }
   
     /**
      * Sets  the temperature that gets displayed in the GUI.
@@ -210,11 +200,25 @@ public class WeatherAppView extends Observable implements ActionListener {
     public String getTemp(){
 		return temperature;
 	}
+    
+    public ArrayList<Long> getRequestTimes(){
+    	return requestTimes;
+    }
+    
+    public int getIndex(){
+    	return indexCounter;
+    }
 
+    public int getTTL(){
+    	return ttl;
+    }
+    
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub	
 	}
 
 }
+
+
 

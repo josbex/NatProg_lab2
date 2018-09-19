@@ -1,8 +1,5 @@
 package weather_app_parts;
 
-import org.xml.sax.*;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,6 +9,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
+
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 
 /**
@@ -99,7 +106,7 @@ public class WeatherAppModel implements Observer{
 			yrConnection = yrURL.openConnection();
 			yrConnection.connect();
 			dataDoc = dataToDocument(yrConnection);
-			view.setRefreshData(false);
+			data = dataDoc.getElementsByTagName("temperature");
 		}
 		catch (MalformedURLException e){
 			System.out.println("URL didnt work");
@@ -175,7 +182,6 @@ public class WeatherAppModel implements Observer{
 	public void setTemperature(){
 		Node n,m;
 		Element e,k;
-		data = dataDoc.getElementsByTagName("temperature");
 		String test ="";
 		for(int i = 0; i < data.getLength(); i++){
 			n = data.item(i);
@@ -197,12 +203,14 @@ public class WeatherAppModel implements Observer{
 		city = getPlaceData(location, places);
 		addOnURL = "lat="+ city[1] + "&lon=" + city[2] + "&msl=" + city[0];
 		dateAndTime = todaysDate();
-		//Only creates a new connection when refreshbutton is pressed
-		if(view.getRefreshData()){
+		long currTime = System.currentTimeMillis()/1000;
+		//Only creates a new connection if there isn't old data available
+		if(currTime - view.getRequestTimes().get(view.getIndex()-1) < view.getTTL()){ 
 			connectionSetup();
 		}
-		//Otherwise it uses previously stored data.
 		setTemperature();
 		view.setTemp(temperature);
 	}
 }
+
+
